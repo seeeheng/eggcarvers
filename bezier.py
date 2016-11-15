@@ -8,20 +8,19 @@ from svgpathtools import Path, Line, QuadraticBezier, CubicBezier, Arc, parse_pa
 
 
 def para_cubic_bezier(P0,P1,P2,P3,t):
-
-	"spits out y-val as a function of x, where 0,0 is the start of the curve"
+	"""takes in start and end point as well as two control points and a t value and spits out the x and y
+	vals of a bezier curve"""
 
 	x = (1-t)**3*P0.real + 3*t*(1-t)**2*P1.real + 3*t**2*(1-t)*P2.real + t**3*P3.real
 	y = (1-t)**3*P0.imag + 3*t*(1-t)**2*P1.imag + 3*t**2*(1-t)*P2.imag + t**3*P3.imag
-
-	
 	
 	return x,y
 
 
 def cubic_bezier(P0,P1,P2,P3,x):
-
-	"spits out y-val as a function of x, where 0,0 is the start of the curve"
+	"""
+	spits out y-val as a function of x, where 0,0 is the start of the curve
+	"""
 
 	t3 = -P0.real + 3*P1.real - 3*P2.real + P3.real
 	t2 = 3*P0.real -6*P1.real + 3*P2.real
@@ -63,7 +62,7 @@ def plot_bezier_para(bezier):
 	P2 = (bezier.control2)
 	P3 = (bezier.end)
 
-	t_range = np.linspace(0,1,1000)
+	t_range = np.linspace(0,1,10000)
 	x_range = []
 	y_range = []
 
@@ -78,9 +77,28 @@ def plot_bezier_para(bezier):
 		x_range.append(x)
 		y_range.append(y)
 
-	print(x_range)
-	print(y_range)
-	plt.plot(x_range,y_range)
+	new_x_range = []
+	new_y_range = []
+	last = x_range[0]
+
+
+	new_x_range.append(round(last))
+	new_y_range.append(y_range[0])
+
+	for x in range(len(x_range)):
+
+		if (abs(x_range[x] - last) >= 3):
+			last = x_range[x]
+			new_x_range.append(int(x_range[x]))
+			new_y_range.append(int(y_range[x]))
+
+	# print(new_x_range)
+	# print(new_y_range)
+	# print(len(new_y_range))
+
+	#print(x_range)
+	#print(y_range)
+	plt.plot(new_x_range,new_y_range)
 
 def parse_svg(svg_name):
 
@@ -89,18 +107,18 @@ def parse_svg(svg_name):
                 in doc.getElementsByTagName('path')]
 	doc.unlink()
 
-	print(str(path_strings))
+	# print(str(path_strings))
 
-	paths =  parse_path(str(path_strings)) #"M 297.14286 478.07649 C 354.28571 14.28571 425.71428 -120 425.71428 -120"))
+	paths =  parse_path(str(path_strings)) 
 
-	print(paths) 
+	# print(paths) 
 
 	for path in paths:
 
 		if type(path) is CubicBezier:
 			print('yooo')
 			print(path)
-			plot_bezier_para(path)
+			# plot_bezier_para(path)
 			#plot_bezier(path)
 
 		elif type(path) is Line:
