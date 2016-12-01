@@ -1,7 +1,7 @@
 from __future__ import  print_function
+import re
 import numpy as np 
 from xml.dom import minidom
-from svgpathtools import Path, Line, QuadraticBezier, CubicBezier, Arc, parse_path
 
 
 def parse_svg(svg_name):
@@ -18,8 +18,15 @@ def parse_svg(svg_name):
 
 	#a list containing control point values for bezier
 	path_vals = [path.getAttribute('d') for path in doc.getElementsByTagName('path')]
-	paths =  parse_path(str(path_vals)) 
-	
+	bezier_vals = [(re.findall(r"[-+]?\d*\.\d+|\d+", str(path))) for path in path_vals if ('c' or 'C') in path]
+	line_vals = [(re.findall(r"[-+]?\d*\.\d+|\d+", str(path))) for path in path_vals if ('c') not in path and 'C' not in path]
+
+
+	if bezier_vals:
+		parsed_svg['bezier_vals'] = bezier_vals
+	if line_vals:
+		parsed_svg['line_vals'] = line_vals
+
 	# a list of tuples containing rectangle parameters
 	# (x, y, width, height)
 	rect_vals = [(path.getAttribute('x'), path.getAttribute('y'), path.getAttribute('width'),path.getAttribute('height')) 
@@ -44,23 +51,8 @@ def parse_svg(svg_name):
 
 	doc.unlink()
 
-	#parses paths for bezier vals and line vals 
-	#produces a list of tuples containing start, end, and control points for bezier curves
-	#and start and end points for line vals
-	bezier_vals = [(path.start.real,path.start.imag,
-		path.control1.real,path.control1.imag,path.control2.real,path.control2.imag,
-		path.end.real,path.end.imag) for path in paths if type(path) is CubicBezier]
-
-	line_vals = [(path.start.real,path.start.imag,path.end.real,path.end.imag) for path in paths if type(path is Line)]
-
-	#adds list of bezier vals and line vals to dict if list is not empty
-	if bezier_vals:
-		parsed_svg['bezier'] = bezier_vals
-	if line_vals:
-		parsed_svg['line'] = line_vals
-
 	return parsed_svg
 
 if __name__ == '__main__':
-	parse_svg('drawing-11.svg')
+	parse_svg('drawing-12.svg')
 
