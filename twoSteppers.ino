@@ -30,8 +30,8 @@ void setup() {
   Serial.println("Starting!");
   delay(2000);
   pen.attach(9);
-  pinMode(3, OUTPUT);
-  pinMode(2, INPUT);
+  pinMode(7, OUTPUT);
+  pinMode(6, INPUT);
 
   AFMS.begin();  // create with the default frequency 1.6KHz
 }
@@ -42,8 +42,8 @@ void loop() {
   Serial.println("Calibration has been finished!");
   // Center is 100, 120 
   
-  moveTo(95, 60);
-  drawRect(95, 60, 10, 90); // body 20x80
+  moveTo(90, 60);
+  drawRect(90, 60, 20, 90); // body 20x80
 
   moveTo(95, 100);
   drawLine(95, 100, 75, 120, true);
@@ -62,7 +62,7 @@ void loop() {
   drawLine(100, 60, 110, 30, true); // legs
   drawLine(110, 30, 120, 30, true);
   drawLine(120, 30, 110, 60, true);
-
+  
   moveTo(90, 160);
   drawBezier(90, 160, 95, 210, 105, 210, 110, 160); // head
   drawBezier(110, 160, 105, 110, 95, 110, 90, 160);
@@ -72,21 +72,21 @@ void loop() {
 }
 
 void calibratePen() {
-  int offset = 5;
-  digitalWrite(3, HIGH);
-  int sensorRead = digitalRead(2);
+  int offset = 13;
+  digitalWrite(7, HIGH);
+  int sensorRead = digitalRead(6);
   
   for (int i = 0; i < precision; i++) {
     pen.write(180);
     moveTo(0, i * ymax / precision);
 
     int depth = 180;
-    while (sensorRead == HIGH) {
-      digitalWrite(3, HIGH);
-      sensorRead = digitalRead(2);
+    while (sensorRead == LOW) {
+      digitalWrite(7, HIGH);
+      sensorRead = digitalRead(6);
       pen.write(depth);
       depth--;
-      delay(50);
+      delay(10);
     }
     calibration[i] = depth + offset;
     Serial.print("Latitude ");
@@ -95,8 +95,8 @@ void calibratePen() {
     Serial.println(depth);
     pen.write(180);
     delay(200);
-    digitalWrite(3, HIGH);
-    sensorRead = digitalRead(2);
+    digitalWrite(7, HIGH);
+    sensorRead = digitalRead(6);
     delay(200);
   }
 }
